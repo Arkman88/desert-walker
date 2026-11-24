@@ -1,3 +1,5 @@
+import { TouchControls } from '../ui/TouchControls'
+import { touchInput, resetTouchInput } from '../features/controls/gameInput'
 import { PumpStationPanel } from '../ui/exploration/PumpStationPanel'
 import { TarikPanel } from '../ui/exploration/TarikPanel'
 import { type GroundPosition } from '../features/resources/lootModel'
@@ -37,6 +39,7 @@ type GamePanel = { type: 'tarik' | 'station'; eye: GroundPosition; direction: Gr
 export function App() {
   const [terrainError, setTerrainError] = useState('')
   const [active, setActive] = useState(false)
+  const [touchMode, setTouchMode] = useState(() => matchMedia('(any-pointer: coarse)').matches)
   const [placement, setPlacement] = useState<PlacementSelection | null>(null)
   const finishPlacement = useCallback(() => setPlacement(null), [])
   const [survival, setSurvival] = useState(() => createSurvivalStore(undefined, { hideStartBuildings: true }))
@@ -68,7 +71,10 @@ export function App() {
     survival.flush()
     if (requestNewGame()) {
       // Keep the canvas mounted and request pointer lock during the confirmation click.
-      if (canvas !== null && canvas !== undefined) {
+      if (touchMode) {
+        touchInput.active = true
+        setActive(true)
+      } else if (canvas !== null && canvas !== undefined) {
         void canvas.requestPointerLock()?.catch(() => setActive(false))
       }
       setPanel(null)
@@ -79,7 +85,7 @@ export function App() {
       return true
     }
     return false
-  }, [survival])
+  }, [survival, touchMode])
   const finishRestart = useCallback(() => {
     if (restartRequested.current) {
       // World notifies us after its old scene has finished all autosave cleanup.
@@ -114,6 +120,8 @@ export function App() {
     setPanel(next)
     setPlacement(null)
     setActive(false)
+    touchInput.active = false
+    resetTouchInput()
     if (document.pointerLockElement) document.exitPointerLock()
   }, [survival])
   const openMap = useCallback(() => {
@@ -129,15 +137,25 @@ export function App() {
     setPlacement(null)
     setPanel(null)
     const canvas = canvasRef.current?.querySelector('canvas')
-    if (canvas) void canvas.requestPointerLock()
-  }, [survival])
+    if (touchMode) {
+      touchInput.active = true
+      resetTouchInput()
+      setActive(true)
+    } else if (canvas) {
+      void canvas.requestPointerLock().catch(() => setActive(false))
+    }
+  }, [survival, touchMode])
   useEffect(() => {
     const change = () => {
-      const locked = !document.hidden && document.pointerLockElement === canvasRef.current?.querySelector('canvas')
+      const locked = !document.hidden && (touchInput.active || document.pointerLockElement === canvasRef.current?.querySelector('canvas'))
       setActive(locked)
       if (!locked) setPlacement(null)
     }
     const hidden = () => {
+      if (document.hidden) {
+        touchInput.active = false
+        resetTouchInput()
+      }
       if (document.hidden && document.pointerLockElement) document.exitPointerLock()
       change()
     }
@@ -159,7 +177,7 @@ export function App() {
       const target = event.target
       if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
       const canvas = canvasRef.current?.querySelector('canvas')
-      if (!panel && (!canvas || document.pointerLockElement !== canvas)) return
+      if (!panel && (!canvas || (!touchInput.active && document.pointerLockElement !== canvas))) return
       const type = event.code === 'KeyI' ? 'inventory' : event.code === 'KeyM' ? 'map' : event.code === 'KeyC' ? 'crafting' : event.code === 'KeyT' ? 'journal' : null
       if (!type) return
       event.preventDefault()
@@ -173,7 +191,14 @@ export function App() {
   const openContainer = useCallback((container: LootContainer) => openPanel({ type: 'container', container }), [openPanel])
   const openFire = useCallback((id: string) => openPanel({ type: 'fire', id }), [openPanel])
   const openBed = useCallback((id: string) => openPanel({ type: 'bed', id }), [openPanel])
-  return <SurvivalContext.Provider value={survival}><main ref={canvasRef}>
+  return <SurvivalContext.Provider value={survival}><main ref={canvasRef} onPointerDownCapture={({ pointerType }) => {
+    if (pointerType === 'touch') {
+      setTouchMode(true)
+      if (active && panel === null) {
+        touchInput.active = true
+      }
+    }
+  }}>
     {!saveBlocked && <Canvas
       shadows
       camera={{ fov: 78, near: 0.1, far: 50000 }}
@@ -201,6 +226,14 @@ export function App() {
       <GameHud hud={hud} minutesOfDay={minutesOfDay} resources={GAME_FEATURES.resourceCollection ? resources : undefined}/>
       <SurvivalHud interaction={active ? interaction : null}/>
     </>}
+    {touchMode && active && !panel && !restarting && <TouchControls placementActive={placement !== null}
+      onPause={() => {
+        touchInput.active = false
+        resetTouchInput()
+        setActive(false)
+        setPlacement(null)
+        if (document.pointerLockElement) { document.exitPointerLock() }
+      }} onPanel={type => type === 'map' ? openMap() : openPanel({ type })}/>}
     {panel?.type === 'container' && <LootContainerPanel container={panel.container} onResume={start}/>}
     {panel?.type === 'map' && <MapPanel player={hud} onResume={start}/>}
     {panel?.type === 'inventory' && <InventoryPanel onResume={start} onOpenMap={openMap}
@@ -211,7 +244,7 @@ export function App() {
     {panel?.type === 'bed' && <BedPanel id={panel.id} onResume={start}/>}
     {panel?.type === 'fire' && <FireplacePanel id={panel.id} onResume={start}/>}
     {panel?.type === 'crafting' && <CraftingPanel onResume={start} onOpenInventory={() => openPanel({ type: 'inventory' })}/>}
-    {!saveBlocked && !restarting && !active && !panel && <StartMenu onNewGame={newGame} hasProgress={hasProgress} sprintSpeed={sprintSpeed} onSprintSpeedChange={survival.setSprintSpeed} debugOptions={debugOptions} onDebugChange={survival.setDebugOption} onStart={start} resourceCollectionEnabled={GAME_FEATURES.resourceCollection}
+    {!saveBlocked && !restarting && !active && !panel && <StartMenu touchMode={touchMode} onTouchModeChange={setTouchMode} onNewGame={newGame} hasProgress={hasProgress} sprintSpeed={sprintSpeed} onSprintSpeedChange={survival.setSprintSpeed} debugOptions={debugOptions} onDebugChange={survival.setDebugOption} onStart={start} resourceCollectionEnabled={GAME_FEATURES.resourceCollection}
       stormEnabled={stormEnabled} onStormChange={setStormEnabled}
       timeOfDayMode={timeOfDayMode} onTimeOfDayChange={setTimeOfDayMode}/>}
   </main></SurvivalContext.Provider>

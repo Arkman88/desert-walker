@@ -1,3 +1,4 @@
+import { hasGameInput, subscribeGameKey, type GameKeyEvent } from '../controls/gameInput'
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 
@@ -24,21 +25,22 @@ export function Survival({ active, placementActive, timeOfDayMode }: { active: b
   }, [active, store])
 
   useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (!active || document.hidden || document.pointerLockElement !== gl.domElement || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return
-      if (event.code === 'KeyR') store.drink()
-      else if (event.code === 'KeyF') store.eat()
-      else if (event.code === 'KeyQ' && !placementActive) {
-        event.preventDefault()
-        store.pourWater()
+    const key = (event: GameKeyEvent) => {
+      if (active && hasGameInput(gl.domElement) && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (event.code === 'KeyR') store.drink()
+        else if (event.code === 'KeyF') store.eat()
+        else if (event.code === 'KeyQ' && !placementActive) {
+          event.preventDefault()
+          store.pourWater()
+        }
       }
     }
     const hidden = () => { if (document.hidden) store.flush() }
-    window.addEventListener('keydown', key)
+    const unsubscribe = subscribeGameKey(key)
     window.addEventListener('pagehide', store.flush)
     document.addEventListener('visibilitychange', hidden)
     return () => {
-      window.removeEventListener('keydown', key)
+      unsubscribe()
       window.removeEventListener('pagehide', store.flush)
       document.removeEventListener('visibilitychange', hidden)
       store.flush()

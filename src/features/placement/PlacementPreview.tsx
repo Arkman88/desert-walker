@@ -1,3 +1,4 @@
+import { hasGameInput, subscribeGameKey, type GameKeyEvent } from '../controls/gameInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
@@ -37,19 +38,26 @@ export function PlacementPreview({ selection, active, onDone, onInteraction }: {
       blocked: !placement || Boolean(placement.reason) })
   }, [active, placement?.reason, kind, onInteraction])
   useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (!active || document.hidden || document.pointerLockElement !== gl.domElement || event.repeat
-        || event.ctrlKey || event.metaKey || event.altKey) return
-      if (event.code === 'KeyQ') { event.preventDefault(); onDone() }
-      if (event.code !== 'KeyE') return
-      event.preventDefault()
-      camera.getWorldDirection(direction)
-      const place = { canopy: store.placeCanopy, crateKit: store.placeCrate, campfireKit: store.placeFire, bedKit: store.placeBed }
-      place[kind](id, camera.position, direction)
-      if (!store.getSnapshot().state.inventory.some(item => item.id === id)) onDone()
+    const key = (event: GameKeyEvent) => {
+      if (active && hasGameInput(gl.domElement) && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (event.code === 'KeyQ') {
+          event.preventDefault()
+          onDone()
+        }
+        if (event.code === 'KeyE') {
+          const place = { canopy: store.placeCanopy, crateKit: store.placeCrate, campfireKit: store.placeFire, bedKit: store.placeBed }
+
+          event.preventDefault()
+          camera.getWorldDirection(direction)
+          place[kind](id, camera.position, direction)
+          if (store.getSnapshot().state.inventory.every(item => item.id !== id)) {
+            onDone()
+          }
+        }
+      }
     }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    const unsubscribe = subscribeGameKey(key)
+    return () => unsubscribe()
   }, [active, camera, gl, direction, id, kind, onDone, store])
   useEffect(() => () => onInteraction(null), [onInteraction])
   useFrame((_, delta) => {

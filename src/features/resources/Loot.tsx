@@ -1,3 +1,4 @@
+import { hasGameInput, subscribeGameKey, type GameKeyEvent } from '../controls/gameInput'
 import { storyVillageNote, STORY_NOTE_ID } from '../progression/storyNote'
 import { useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -186,34 +187,34 @@ export function Loot({ active, playerChunk, onInteraction, onOpenContainer, onOp
   }, [active, camera, onInteraction, store, worldItems.nextDropId])
 
   useEffect(() => {
-    const interact = (event: KeyboardEvent) => {
-      if (event.code !== 'KeyE' || event.repeat || event.ctrlKey || event.metaKey || event.altKey
-        || !active || document.hidden || document.pointerLockElement !== gl.domElement) return
-      camera.getWorldDirection(direction)
-      const nearest = nearestLoot(targets, camera.position, direction, store.obstaclesNear)
-      if (nearest) {
-        event.preventDefault()
-        if (nearest.kind === 'hutDoor') store.toggleHutDoor(camera.position, direction, nearest.groupId)
-        else if (nearest.kind === 'door') store.openTechnicalDoor(camera.position, direction)
-        else if (nearest.kind === 'tarik') {
-          if (store.talkToTarik(camera.position, direction)) { onOpenTarik({ ...camera.position }, { ...direction }) }
+    const interact = (event: GameKeyEvent) => {
+      if (event.code === 'KeyE' && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey && active && hasGameInput(gl.domElement)) {
+        camera.getWorldDirection(direction)
+        const nearest = nearestLoot(targets, camera.position, direction, store.obstaclesNear)
+        if (nearest) {
+          event.preventDefault()
+          if (nearest.kind === 'hutDoor') store.toggleHutDoor(camera.position, direction, nearest.groupId)
+          else if (nearest.kind === 'door') store.openTechnicalDoor(camera.position, direction)
+          else if (nearest.kind === 'tarik') {
+            if (store.talkToTarik(camera.position, direction)) { onOpenTarik({ ...camera.position }, { ...direction }) }
+          }
+          else if (nearest.kind === 'station') {
+            store.inspectStoryStation(camera.position, direction)
+            onOpenStation({ ...camera.position }, { ...direction })
+          }
+          else if (nearest.kind === 'bed') onOpenBed(nearest.bedId)
+          else if (nearest.kind === 'fire') onOpenFire(nearest.fireId)
+          else if (nearest.kind === 'crate') onOpenContainer(nearest.container)
+          else if (nearest.row.id === STORY_NOTE_ID) store.pickupStoryNote(camera.position, direction)
+          else store.pickup(nearest.row)
+        } else if (canReachWater(camera.position)) {
+          event.preventDefault()
+          store.refill(camera.position)
         }
-        else if (nearest.kind === 'station') {
-          store.inspectStoryStation(camera.position, direction)
-          onOpenStation({ ...camera.position }, { ...direction })
-        }
-        else if (nearest.kind === 'bed') onOpenBed(nearest.bedId)
-        else if (nearest.kind === 'fire') onOpenFire(nearest.fireId)
-        else if (nearest.kind === 'crate') onOpenContainer(nearest.container)
-        else if (nearest.row.id === STORY_NOTE_ID) store.pickupStoryNote(camera.position, direction)
-        else store.pickup(nearest.row)
-      } else if (canReachWater(camera.position)) {
-        event.preventDefault()
-        store.refill(camera.position)
       }
     }
-    window.addEventListener('keydown', interact, true)
-    return () => window.removeEventListener('keydown', interact, true)
+    const unsubscribe = subscribeGameKey(interact, true)
+    return () => unsubscribe()
   }, [active, camera, direction, gl, targets, store, onOpenContainer, onOpenFire, onOpenBed, onOpenTarik, onOpenStation])
 
   useFrame((_, delta) => {

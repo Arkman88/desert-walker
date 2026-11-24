@@ -1,11 +1,11 @@
 # Автоматический деплой desert-walker.ru
 
-Push в `main` запускает `npm ci`, `npm test`, `npm run build` (TypeScript + Vite) и загрузку
-`dist` по SSH на Ubuntu. Pull request запускает тесты и сборку. Ручной запуск:
+Push в `main` запускает `npm ci`, `npm run build` (TypeScript + Vite) и загрузку
+`dist` по SSH на Ubuntu. Pull request запускает только сборку. Ручной запуск:
 GitHub → Actions → Build and deploy → Run workflow, ветка `main`.
 
 Исходные модели v4, извлечённый ящик и необходимые текстуры находятся в public.
-Тесты проверяют наличие и обработку реальных GLB. Ошибка тестов блокирует деплой.
+Тесты на текущем этапе не запускаются в CI/CD; их можно запускать локально через `npm test`.
 
 ## 1. Один раз подготовить сервер
 

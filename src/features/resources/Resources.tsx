@@ -1,3 +1,4 @@
+import { hasGameInput, subscribeGameKey, type GameKeyEvent } from '../controls/gameInput'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Object3D } from 'three'
@@ -43,12 +44,13 @@ export function Resources({ playerChunk, active, onStatus }: {
   }, [store, cx, cz])
 
   useEffect(() => {
-    const collect = (event: KeyboardEvent) => {
-      if (event.code !== 'KeyE' || event.defaultPrevented || event.repeat || !active || document.pointerLockElement !== gl.domElement) return
-      if (store.collect(camera.position)) setRows(store.rows)
+    const collect = (event: GameKeyEvent) => {
+      if (event.code === 'KeyE' && !event.defaultPrevented && !event.repeat && active && hasGameInput(gl.domElement)) {
+        if (store.collect(camera.position)) setRows(store.rows)
+      }
     }
-    window.addEventListener('keydown', collect)
-    return () => window.removeEventListener('keydown', collect)
+    const unsubscribe = subscribeGameKey(collect)
+    return () => unsubscribe()
   }, [store, camera, gl, active])
 
   useEffect(() => {

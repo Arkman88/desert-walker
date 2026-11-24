@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import * as THREE from 'three'
+import { Vector3, MathUtils } from 'three'
+
+import { touchInput, resetTouchInput, hasGameInput } from '../controls/gameInput'
 
 import { waterAt, waterMovementSpeed, waterSupport, PLAYER_EYE_HEIGHT } from '../water/water'
 import { windAt } from '../environment/wind'
@@ -24,7 +26,7 @@ export function Player({ active, onHud, onChunk, initialPose }: { active: boolea
   const yaw = useRef(initialPose?.yaw ?? 0)
   const pitch = useRef(initialPose?.pitch ?? 0)
   const velocityY = useRef(0)
-  const position = useRef(new THREE.Vector3(initialPose?.x ?? 0, initialPose?.y ?? heightAt(0, 0) + EYE_HEIGHT, initialPose?.z ?? 0))
+  const position = useRef(new Vector3(initialPose?.x ?? 0, initialPose?.y ?? heightAt(0, 0) + EYE_HEIGHT, initialPose?.z ?? 0))
   const previousChunk = useRef('0:0')
   const lastSave = useRef(0)
   const save = () => {
@@ -43,7 +45,10 @@ export function Player({ active, onHud, onChunk, initialPose }: { active: boolea
   }, [])
   const lastHud = useRef(0)
   const frameStats = useRef({ seconds: 0, frames: 0, fps: 0 })
-  useEffect(() => { keys.current.clear() }, [active])
+  useEffect(() => {
+    keys.current.clear()
+    resetTouchInput()
+  }, [active])
   useEffect(() => {
     const p = position.current
     const safe = resolvePlayerPosition(p.x, p.z, Math.max(p.y - EYE_HEIGHT, heightAt(p.x, p.z)), survival.obstaclesNear(p.x, p.z))
@@ -52,16 +57,22 @@ export function Player({ active, onHud, onChunk, initialPose }: { active: boolea
     camera.position.copy(position.current)
     camera.rotation.order = 'YXZ'
     const down = (e: KeyboardEvent) => {
-      if (document.pointerLockElement !== gl.domElement) return
-      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault()
-      keys.current.add(e.code)
+      if (hasGameInput(gl.domElement)) {
+        if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+          e.preventDefault()
+        }
+        keys.current.add(e.code)
+      }
     }
     const up = (e: KeyboardEvent) => keys.current.delete(e.code)
-    const blur = () => keys.current.clear()
+    const blur = () => {
+      keys.current.clear()
+      resetTouchInput()
+    }
     const mouse = (e: MouseEvent) => {
       if (document.pointerLockElement !== gl.domElement) return
       yaw.current -= e.movementX * 0.0021
-      pitch.current = THREE.MathUtils.clamp(pitch.current - e.movementY * 0.0021, -Math.PI * 0.48, Math.PI * 0.48)
+      pitch.current = MathUtils.clamp(pitch.current - e.movementY * 0.0021, -Math.PI * 0.48, Math.PI * 0.48)
     }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
@@ -81,14 +92,20 @@ export function Player({ active, onHud, onChunk, initialPose }: { active: boolea
         stats.seconds = 0; stats.frames = 0
       }
     }
+    if (active && touchInput.active) {
+      yaw.current -= touchInput.lookX * 0.004
+      pitch.current = MathUtils.clamp(pitch.current - touchInput.lookY * 0.004, -Math.PI * 0.48, Math.PI * 0.48)
+    }
+    touchInput.lookX = 0
+    touchInput.lookY = 0
     const dt = Math.min(rawDelta, 0.05)
     const k = keys.current
-    const forward = Number(k.has('KeyW') || k.has('ArrowUp')) - Number(k.has('KeyS') || k.has('ArrowDown'))
-    const side = Number(k.has('KeyD') || k.has('ArrowRight')) - Number(k.has('KeyA') || k.has('ArrowLeft'))
-    const length = Math.hypot(forward, side) || 1
+    const forward = Number(k.has('KeyW') || k.has('ArrowUp')) - Number(k.has('KeyS') || k.has('ArrowDown')) + touchInput.forward
+    const side = Number(k.has('KeyD') || k.has('ArrowRight')) - Number(k.has('KeyA') || k.has('ArrowLeft')) + touchInput.side
+    const length = Math.max(1, Math.hypot(forward, side))
     const p = position.current
     const running = active && !document.hidden && rawDelta <= 1
-    const sprintRequested = (k.has('ShiftLeft') || k.has('ShiftRight')) && survival.canSprint()
+    const sprintRequested = (k.has('ShiftLeft') || k.has('ShiftRight') || touchInput.sprint) && survival.canSprint()
     const initialWater = waterAt(p.x, p.z)
     const moveSpeed = waterMovementSpeed(p.y, initialWater, sprintRequested, survival.getSprintSpeed())
     const sprinting = sprintRequested && moveSpeed > waterMovementSpeed(p.y, initialWater, false) + 0.1
@@ -107,7 +124,7 @@ export function Player({ active, onHud, onChunk, initialPose }: { active: boolea
     const swimming = support > ground + 0.05 && p.y <= support + 0.1
     const grounded = p.y <= support + 0.055 && velocityY.current <= 0
     if (grounded) { p.y = support; velocityY.current = 0 }
-    if (running && grounded && !swimming && k.has('Space') && survival.tryJump()) velocityY.current = water ? JUMP * 0.65 : JUMP
+    if (running && grounded && !swimming && (k.has('Space') || touchInput.jump) && survival.tryJump()) velocityY.current = water ? JUMP * 0.65 : JUMP
     if (running) {
       velocityY.current -= GRAVITY * dt
       const nextEye = p.y + velocityY.current * dt

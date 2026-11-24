@@ -13,6 +13,8 @@ const TIME_OF_DAY_OPTIONS: { value: TimeOfDayMode; label: string }[] = [
 ]
 
 type StartMenuProps = {
+  touchMode: boolean
+  onTouchModeChange: (enabled: boolean) => void
   sprintSpeed: number
   onSprintSpeedChange: (value: number) => void
   debugOptions: Readonly<SurvivalDebugOptions>
@@ -27,7 +29,7 @@ type StartMenuProps = {
   onTimeOfDayChange: (mode: TimeOfDayMode) => void
 }
 
-export const StartMenu = ({ sprintSpeed, onSprintSpeedChange, debugOptions, onDebugChange, onStart, onNewGame, hasProgress, resourceCollectionEnabled, stormEnabled, onStormChange, timeOfDayMode, onTimeOfDayChange }: StartMenuProps) => {
+export const StartMenu = ({ touchMode, onTouchModeChange, sprintSpeed, onSprintSpeedChange, debugOptions, onDebugChange, onStart, onNewGame, hasProgress, resourceCollectionEnabled, stormEnabled, onStormChange, timeOfDayMode, onTimeOfDayChange }: StartMenuProps) => {
   const [confirmReset, setConfirmReset] = useState(false)
   const [saveError, setSaveError] = useState('')
   const restart = () => {
@@ -44,6 +46,10 @@ export const StartMenu = ({ sprintSpeed, onSprintSpeedChange, debugOptions, onDe
         <div className="eyebrow">ЭКСПЕДИЦИЯ № 001</div>
         <h1>Бескрайние<br/><i>пески</i></h1>
         <p>Исследуй пустыню, береги воду и силы. От жары спасает тень, от ночного холода — укрытие. Стартовый лагерь находится за припасами, около X=0, Z=−18.</p>
+        <label className="touch-mode-toggle">
+          <input type="checkbox" checked={touchMode} onChange={({ currentTarget: { checked } }) => onTouchModeChange(checked)}/>
+          Сенсорное управление
+        </label>
         {confirmReset ? <div role="group" aria-label="Подтверждение новой игры">
           <p>Начать заново? Текущий прогресс будет заменён. Резервная копия последней игры останется в этом браузере.</p>
           <button onClick={restart}>НАЧАТЬ ЗАНОВО</button>
@@ -79,7 +85,11 @@ export const StartMenu = ({ sprintSpeed, onSprintSpeedChange, debugOptions, onDe
             ))}
           </div>
         </fieldset>
-        <div className="controls">
+        {touchMode ? <div className="controls">
+          <span>Джойстик слева — движение</span>
+          <span>Свайп по экрану — обзор</span>
+          <span>Кнопки справа — действия</span>
+        </div> : <div className="controls">
           <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> движение</span>
           <span><kbd>МЫШЬ</kbd> обзор</span>
           <span><kbd>SHIFT</kbd> бег</span>
@@ -92,8 +102,8 @@ export const StartMenu = ({ sprintSpeed, onSprintSpeedChange, debugOptions, onDe
           <span><kbd>M</kbd> карта</span>
           <span><kbd>E</kbd> открыть ящик / подобрать / набрать воду</span>
           {resourceCollectionEnabled && <span><kbd>E</kbd> подобрать осколок</span>}
-        </div>
-        <div className="hint">Нужны клавиатура и мышь · Для захвата курсора нажми кнопку</div>
+        </div>}
+        <div className="hint">{touchMode ? 'Можно двигаться и осматриваться одновременно двумя пальцами' : 'Нужны клавиатура и мышь · Для захвата курсора нажми кнопку'}</div>
       </div>
     </div>
   )
