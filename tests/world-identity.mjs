@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { moduleURL } from './module-loader.mjs'
 import { legacyWorldSnapshot } from './legacy-world-snapshot.mjs'
+import { assertLegacyWorldCompatible } from './assertLegacyWorldCompatible.mjs'
 
 const { LEGACY_WORLD_IDENTITY } = await import(moduleURL('../src/features/terrain/worldIdentity.ts'))
 const { parseSurvivalSave, serializeSurvivalSave, initialSurvivalState, drink, SURVIVAL_SAVE_KEY, SURVIVAL_SAVE_VERSION } = await import(moduleURL('../src/features/survival/survivalModel.ts'))
@@ -14,19 +15,33 @@ const legacy = JSON.parse(legacyRaw)
 const { initialProgression } = await import(moduleURL('../src/features/progression/progressionModel.ts'))
 const legacyState = { ...legacy.state, reservoir: { liters: 0, capacity: 40 }, tarik: { status: 'waiting', position: null }, progression: initialProgression() }
 
-// Exact IEEE-754 values in this JS runtime, rather than epsilon comparisons that hide drift.
+// The fixture is portable across Node/CPU versions; repeated queries in one runtime remain exact.
 const baseline = JSON.parse(fixture('legacy-world-v1.json'))
-// Dwelling geometry intentionally changed; retain exact checks for its location, loot and every other world value.
-function withoutDwellingGeometry(value) {
-  if (Array.isArray(value)) return value.map(withoutDwellingGeometry)
-  if (!value || typeof value !== 'object') return value
-  return Object.fromEntries(Object.entries(value)
-    .filter(([key]) => !(value.type === 'dwelling' && key === 'parts'))
-    .map(([key, item]) => [key, withoutDwellingGeometry(item)]))
-}
-assert.deepEqual(withoutDwellingGeometry(legacyWorldSnapshot()), withoutDwellingGeometry(baseline))
-assert.deepEqual(withoutDwellingGeometry(legacyWorldSnapshot()), withoutDwellingGeometry(baseline), 'Repeated queries preserve generated values and IDs')
-console.log('PASS: pre-T01 baseline terrain/hash, oases, POI, loot, village/ruin groups and adventure coordinates/IDs unchanged; dwelling geometry replaced.')
+const currentWorld = legacyWorldSnapshot()
+const portableWorld = structuredClone(currentWorld)
+const changedIdentity = structuredClone(currentWorld)
+const changedId = structuredClone(currentWorld)
+const movedWorld = structuredClone(currentWorld)
+const changedLoot = structuredClone(currentWorld)
+const invalidBurial = structuredClone(currentWorld)
+
+assertLegacyWorldCompatible({ actual: currentWorld, expected: baseline })
+assert.deepEqual(legacyWorldSnapshot(), currentWorld, 'Repeated queries in the same runtime preserve every generated value exactly')
+portableWorld.terrain[7].height -= 2e-11
+portableWorld.villages[1].houses[1].z -= 1.31e-9
+portableWorld.villages[1].houses[1].burialDepth = 0.5804257521347609
+assertLegacyWorldCompatible({ actual: portableWorld, expected: currentWorld })
+changedIdentity.terrain[0].hash += 1e-12
+assert.throws(() => assertLegacyWorldCompatible({ actual: changedIdentity, expected: currentWorld }))
+changedId.loot[0].containers[0].id = 'starter-crate:v2'
+assert.throws(() => assertLegacyWorldCompatible({ actual: changedId, expected: currentWorld }))
+movedWorld.terrain[0].x += 0.001
+assert.throws(() => assertLegacyWorldCompatible({ actual: movedWorld, expected: currentWorld }))
+changedLoot.loot[0].containers[0].contents[0].item.quantity += 1
+assert.throws(() => assertLegacyWorldCompatible({ actual: changedLoot, expected: currentWorld }))
+invalidBurial.villages[1].houses[1].burialDepth = 0.7
+assert.throws(() => assertLegacyWorldCompatible({ actual: invalidBurial, expected: currentWorld }))
+console.log('PASS: portable legacy world baseline, exact IDs/hash/loot and same-runtime determinism; geometry tolerance and village burial range reject meaningful drift.')
 
 const poseKey = 'desert-walker.player.v1'
 const resourceKey = 'desert-walker.resources.v1'
