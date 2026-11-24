@@ -1,6 +1,9 @@
 .touch-controls{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none}
 .touch-look{position:absolute;inset:0;pointer-events:auto;touch-action:none}
-.touch-toolbar{position:absolute;top:max(72px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.touch-toolbar{position:absolute;top:max(72px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:calc(100% - 32px);pointer-events:auto}
+.touch-controls .touch-menu-toggle{font-size:24px;line-height:1;width:44px;height:44px;padding:0}
+.touch-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:240px;max-width:100%;max-height:calc(100dvh - max(72px,env(safe-area-inset-top)) - 72px);overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:10px;border:1px solid #f1d6a880;border-radius:12px;background:#242820f2}
+.touch-controls .touch-menu button{touch-action:pan-y}
 .touch-controls button{pointer-events:auto;touch-action:none;min-height:44px;min-width:44px;padding:10px;border:1px solid #f1d6a880;border-radius:10px;background:#242820cc;color:#ffe0b0;font:inherit;font-size:12px}
 .touch-stick{position:absolute;left:max(22px,env(safe-area-inset-left));bottom:max(28px,env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;border:2px solid #f1d6a870;background:#24282055;pointer-events:auto;touch-action:none;display:grid;place-items:center}
 .touch-stick>div{width:48px;height:48px;border-radius:50%;background:#f1d6a899;pointer-events:none}

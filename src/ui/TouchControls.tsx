@@ -1,4 +1,4 @@
-import { useEffect, useRef, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 
 import { GameActionEvent, resetTouchInput, touchInput } from '../features/controls/gameInput'
 import './touchControls.css'
@@ -10,6 +10,7 @@ type TouchControlsProps = {
 }
 
 export const TouchControls = ({ onPause, onPanel, placementActive }: TouchControlsProps) => {
+  const [menuOpen, setMenuOpen] = useState(false)
   const stick = useRef<HTMLDivElement>(null)
   const movePointer = useRef<number | null>(null)
   const lookPointer = useRef<{ id: number; x: number; y: number } | null>(null)
@@ -38,6 +39,7 @@ export const TouchControls = ({ onPause, onPanel, placementActive }: TouchContro
   return <div className="touch-controls" aria-label="Сенсорное управление">
     <div className="touch-look" aria-label="Проведите для поворота камеры"
       onPointerDown={({ pointerId, clientX, clientY, currentTarget }) => {
+        setMenuOpen(false)
         if (lookPointer.current === null) {
           lookPointer.current = { id: pointerId, x: clientX, y: clientY }
           currentTarget.setPointerCapture(pointerId)
@@ -54,13 +56,24 @@ export const TouchControls = ({ onPause, onPanel, placementActive }: TouchContro
         }
       }}
       onLostPointerCapture={() => { lookPointer.current = null }}/>
-    <nav className="touch-toolbar" aria-label="Игровые окна">
-      <button onClick={onPause}>Меню</button>
-      <button onClick={() => onPanel('inventory')}>Рюкзак</button>
-      <button onClick={() => onPanel('map')}>Карта</button>
-      <button onClick={() => onPanel('crafting')}>Крафт</button>
-      <button onClick={() => onPanel('journal')}>Журнал</button>
-    </nav>
+    <div className="touch-toolbar">
+      <button className="touch-menu-toggle" aria-label={menuOpen ? 'Закрыть меню действий' : 'Открыть меню действий'}
+        aria-expanded={menuOpen} aria-controls="touch-menu"
+        onClick={() => setMenuOpen(previous => !previous)}>
+        <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
+      </button>
+      {menuOpen && <nav id="touch-menu" className="touch-menu" aria-label="Игровые окна и действия"
+        onClick={() => setMenuOpen(false)}>
+        <button onClick={onPause}>Меню</button>
+        <button onClick={() => onPanel('inventory')}>Рюкзак</button>
+        <button onClick={() => onPanel('map')}>Карта</button>
+        <button onClick={() => onPanel('crafting')}>Крафт</button>
+        <button onClick={() => onPanel('journal')}>Журнал</button>
+        <button onClick={() => action('KeyR')}>Пить</button>
+        <button onClick={() => action('KeyF')}>Есть</button>
+        <button onClick={() => action('KeyQ')}>{placementActive ? 'Отмена размещения' : 'Облиться'}</button>
+      </nav>}
+    </div>
     <div className="touch-stick" aria-label="Джойстик движения"
       onPointerDown={event => {
         if (movePointer.current === null) {
@@ -81,10 +94,7 @@ export const TouchControls = ({ onPause, onPanel, placementActive }: TouchContro
         touchInput.jump = true
       }} onLostPointerCapture={() => { touchInput.jump = false }}>Прыжок</button>
       <button onClick={() => action('KeyE')}>{placementActive ? 'Поставить' : 'Действие'}</button>
-      {placementActive && <button onClick={() => action('KeyQ')}>Отмена</button>}
-      <button onClick={() => action('KeyR')}>Пить</button>
-      <button onClick={() => action('KeyF')}>Есть</button>
-      {!placementActive && <button onClick={() => action('KeyQ')}>Облиться</button>}
+
     </div>
   </div>
 }
