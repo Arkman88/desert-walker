@@ -1,0 +1,707 @@
+{
+  "version": 19,
+  "state": {
+    "gameObjects": {
+      "groups": [
+        {
+          "id": "hut:test:v1",
+          "definitionId": "desert_hut",
+          "type": "building",
+          "transform": {
+            "position": [
+              12,
+              7.346421067736262,
+              -15
+            ],
+            "rotation": [
+              0,
+              1,
+              0,
+              6.123233995736766e-17
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          "connections": [
+            {
+              "id": "hut:test:v1:connection:roof",
+              "fromObjectId": "hut:test:v1:roof",
+              "toObjectId": "hut:test:v1:wall_shell",
+              "fromSocket": "mount",
+              "toSocket": "roof",
+              "kind": "fixed"
+            },
+            {
+              "id": "hut:test:v1:connection:window",
+              "fromObjectId": "hut:test:v1:window",
+              "toObjectId": "hut:test:v1:wall_shell",
+              "fromSocket": "mount",
+              "toSocket": "window",
+              "kind": "fixed"
+            },
+            {
+              "id": "hut:test:v1:connection:canopy",
+              "fromObjectId": "hut:test:v1:canopy",
+              "toObjectId": "hut:test:v1:wall_shell",
+              "fromSocket": "mount",
+              "toSocket": "canopy",
+              "kind": "fixed"
+            },
+            {
+              "id": "hut:test:v1:connection:door",
+              "fromObjectId": "hut:test:v1:door",
+              "toObjectId": "hut:test:v1:wall_shell",
+              "fromSocket": "mount",
+              "toSocket": "door",
+              "kind": "hinge"
+            }
+          ],
+          "state": {},
+          "members": [
+            {
+              "id": "hut:test:v1:wall_shell",
+              "definitionId": "desert_hut:wall_shell",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:wall_shell"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:wall_shell"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:roof",
+              "definitionId": "desert_hut:roof",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:roof"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:roof"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:door",
+              "definitionId": "desert_hut:door",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:door"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:door"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                },
+                "door": {
+                  "opened": false
+                },
+                "interaction": {
+                  "action": "openHutDoor"
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:window",
+              "definitionId": "desert_hut:window",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:window"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:window"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:canopy",
+              "definitionId": "desert_hut:canopy",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:canopy"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:canopy"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:crate",
+              "definitionId": "desert_hut:crate",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:crate"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:crate"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                },
+                "storage": {
+                  "containerId": "hut:test:v1:crate"
+                },
+                "interaction": {
+                  "action": "container"
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "hut:test:v1:props",
+              "definitionId": "desert_hut:props",
+              "transform": {
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "desert_hut_v4:props"
+                },
+                "collider": {
+                  "profile": "desert_hut_v4:props"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            }
+          ]
+        },
+        {
+          "id": "machine:pump-station:v1",
+          "definitionId": "pump_station",
+          "type": "machine",
+          "transform": {
+            "position": [
+              60,
+              7.758153021718524,
+              -15
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          "connections": [
+            {
+              "id": "machine:pump-station:v1:connection:mount:pump",
+              "fromObjectId": "machine:pump-station:v1:pump",
+              "toObjectId": "machine:pump-station:v1:body",
+              "fromSocket": "mount",
+              "toSocket": "pump",
+              "kind": "fixed"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:mount:reservoir",
+              "fromObjectId": "machine:pump-station:v1:reservoir",
+              "toObjectId": "machine:pump-station:v1:body",
+              "fromSocket": "mount",
+              "toSocket": "reservoir",
+              "kind": "fixed"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:mount:pipe",
+              "fromObjectId": "machine:pump-station:v1:pipe",
+              "toObjectId": "machine:pump-station:v1:body",
+              "fromSocket": "mount",
+              "toSocket": "pipe",
+              "kind": "fixed"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:mount:power",
+              "fromObjectId": "machine:pump-station:v1:power",
+              "toObjectId": "machine:pump-station:v1:body",
+              "fromSocket": "mount",
+              "toSocket": "power",
+              "kind": "fixed"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:pump-pipe",
+              "fromObjectId": "machine:pump-station:v1:pump",
+              "toObjectId": "machine:pump-station:v1:pipe",
+              "fromSocket": "waterOut",
+              "toSocket": "waterIn",
+              "kind": "port"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:pipe-reservoir",
+              "fromObjectId": "machine:pump-station:v1:pipe",
+              "toObjectId": "machine:pump-station:v1:reservoir",
+              "fromSocket": "waterOut",
+              "toSocket": "waterIn",
+              "kind": "port"
+            },
+            {
+              "id": "machine:pump-station:v1:connection:power-pump",
+              "fromObjectId": "machine:pump-station:v1:power",
+              "toObjectId": "machine:pump-station:v1:pump",
+              "fromSocket": "powerOut",
+              "toSocket": "powerIn",
+              "kind": "port"
+            }
+          ],
+          "state": {},
+          "members": [
+            {
+              "id": "machine:pump-station:v1:body",
+              "definitionId": "pump_station:body",
+              "transform": {
+                "position": [
+                  0,
+                  -0.35,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  6,
+                  0.8,
+                  4
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "pump_station_box:body"
+                },
+                "collider": {
+                  "profile": "unit_box"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "machine:pump-station:v1:pump",
+              "definitionId": "pump_station:pump",
+              "transform": {
+                "position": [
+                  -1.5,
+                  0.65,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1.2,
+                  1.2,
+                  1
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "pump_station_box:pump"
+                },
+                "collider": {
+                  "profile": "unit_box"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "machine:pump-station:v1:reservoir",
+              "definitionId": "pump_station:reservoir",
+              "transform": {
+                "position": [
+                  1.5,
+                  1.15,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1.6,
+                  2.2,
+                  1.6
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "pump_station_box:reservoir"
+                },
+                "collider": {
+                  "profile": "unit_box"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "machine:pump-station:v1:pipe",
+              "definitionId": "pump_station:pipe",
+              "transform": {
+                "position": [
+                  -0.1,
+                  0.5,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1.6,
+                  0.22,
+                  0.22
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "pump_station_box:pipe"
+                },
+                "collider": {
+                  "profile": "unit_box"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            },
+            {
+              "id": "machine:pump-station:v1:power",
+              "definitionId": "pump_station:power",
+              "transform": {
+                "position": [
+                  -1.5,
+                  0.45,
+                  -1.25
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "scale": [
+                  1.1,
+                  0.8,
+                  0.7
+                ]
+              },
+              "components": {
+                "render": {
+                  "assetId": "pump_station_box:power"
+                },
+                "collider": {
+                  "profile": "unit_box"
+                },
+                "durability": {
+                  "current": 100,
+                  "max": 100
+                }
+              },
+              "state": {}
+            }
+          ]
+        }
+      ]
+    },
+    "adventure": {
+      "doorOpened": true
+    },
+    "beds": {
+      "placed": [
+        {
+          "id": "bed:1",
+          "x": 45,
+          "y": 9.022500691678065,
+          "z": 45
+        }
+      ],
+      "nextId": 2
+    },
+    "weather": {
+      "stormSecondsRemaining": 0
+    },
+    "fireplaces": {
+      "placed": [
+        {
+          "id": "fire:1",
+          "x": 55,
+          "y": 10.33924246824863,
+          "z": 55,
+          "fuelSeconds": 100,
+          "burning": true
+        }
+      ],
+      "nextId": 2
+    },
+    "storage": {
+      "placed": [
+        {
+          "id": "crate:1",
+          "x": 35,
+          "y": 8.029558164690702,
+          "z": 35,
+          "items": [
+            {
+              "id": "legacy:stored-flask",
+              "type": "flask",
+              "waterLiters": 0.75
+            }
+          ]
+        }
+      ],
+      "nextId": 2,
+      "dismantledIds": [
+        "starter-crate:v1"
+      ]
+    },
+    "camps": {
+      "placed": [
+        {
+          "id": "canopy:1",
+          "x": 25,
+          "y": 7.557867481594632,
+          "z": 25
+        }
+      ],
+      "nextId": 2
+    },
+    "elapsedSeconds": 240,
+    "hydration": 60,
+    "food": 100,
+    "inventory": [
+      {
+        "id": "starter-flask",
+        "type": "flask",
+        "waterLiters": 1
+      },
+      {
+        "id": "starter-rations",
+        "type": "ration",
+        "quantity": 2
+      },
+      {
+        "id": "borehole:v1:crowbar",
+        "type": "crowbar"
+      }
+    ],
+    "backpack": null,
+    "clothing": {
+      "sunHat": null,
+      "warmClothes": null
+    },
+    "worldItems": {
+      "collectedIds": [
+        "loot:v1:0:0:0",
+        "borehole:v1:crowbar"
+      ],
+      "dropped": [
+        {
+          "id": "drop:1",
+          "x": 30,
+          "y": 7.738032113688147,
+          "z": 30,
+          "item": {
+            "id": "legacy:paper",
+            "type": "paper",
+            "quantity": 1
+          }
+        }
+      ],
+      "nextDropId": 2
+    },
+    "navigation": {
+      "cells": [],
+      "markers": [],
+      "discoveries": [],
+      "nextMarkerId": 1
+    },
+    "stamina": 100,
+    "recoveryDelay": 0,
+    "sprintExhausted": false,
+    "conditions": {
+      "dehydration": 0,
+      "exhaustion": 0,
+      "overheating": 0,
+      "hypothermia": 0
+    },
+    "bodyTemperature": 37
+  }
+}

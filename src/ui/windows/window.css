@@ -1,0 +1,25 @@
+:is(.inventory-panel, .crafting-panel) .window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+:is(.inventory-panel, .crafting-panel) .window-header h2 { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: 28px; }
+:is(.inventory-panel, .crafting-panel) .window-close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  color: #f1d6a8;
+  border: 1px solid #f1d6a860;
+  font-size: 28px;
+  line-height: 1;
+}
+
+:is(.inventory-panel, .crafting-panel) .window-close:hover { background: #f1d6a81a; }

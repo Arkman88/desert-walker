@@ -1,0 +1,44 @@
+[
+  {
+    "name": "collapsed_house",
+    "file": "collapsed_house.glb",
+    "meshes": 81,
+    "triangles": 1020,
+    "bytes": 46576
+  },
+  {
+    "name": "corner_ruin",
+    "file": "corner_ruin.glb",
+    "meshes": 56,
+    "triangles": 684,
+    "bytes": 32932
+  },
+  {
+    "name": "archway",
+    "file": "archway.glb",
+    "meshes": 47,
+    "triangles": 564,
+    "bytes": 27108
+  },
+  {
+    "name": "tower",
+    "file": "tower.glb",
+    "meshes": 63,
+    "triangles": 792,
+    "bytes": 36668
+  },
+  {
+    "name": "courtyard",
+    "file": "courtyard.glb",
+    "meshes": 110,
+    "triangles": 1320,
+    "bytes": 61168
+  },
+  {
+    "name": "market_stall",
+    "file": "market_stall.glb",
+    "meshes": 45,
+    "triangles": 624,
+    "bytes": 27060
+  }
+]

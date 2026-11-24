@@ -1,0 +1,30 @@
+.quest-journal {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
+  gap: 24px;
+}
+.quest-journal nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quest-journal nav button {
+  text-align: left;
+}
+.quest-journal nav button small {
+  display: block;
+  margin-top: 6px;
+}
+.quest-journal nav button[aria-current="true"] {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+.quest-journal section h3 {
+  margin-top: 0;
+}
+@media (max-width: 520px) {
+  .quest-journal {
+    grid-template-columns: minmax(120px, 1fr) minmax(0, 1.5fr);
+    gap: 12px;
+  }
+}

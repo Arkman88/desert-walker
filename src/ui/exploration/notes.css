@@ -1,0 +1,8 @@
+.notes-list { display: grid; gap: 4px; width: 100%; min-width: 0; }
+.notes-list button { white-space: normal; overflow-wrap: anywhere; }
+.note-reader { box-sizing: border-box; width: min(560px, calc(100vw - 32px)); max-height: 80dvh; padding: 20px; border: 1px solid #9c8460; border-radius: 8px; background: #e5d4ad; color: #382f22; overflow-y: auto; }
+.note-reader::backdrop { background: #080b0ccc; }
+.note-reader .window-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.note-reader .window-close { flex: 0 0 36px; width: 36px; height: 36px; padding: 0; font-size: 24px; color: #382f22; }
+.note-reader .window-header h2 { color: #382f22; font-size: 18px; }
+.note-text { white-space: pre-line; line-height: 1.65; font-size: 15px; }

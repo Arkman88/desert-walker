@@ -1,0 +1,9 @@
+.inventory-panel.bed-panel { display: flex; flex-direction: column; gap: 12px; width: min(440px, calc(100vw - 24px)); padding: 20px; }
+.bed-panel p { margin: 0; }
+.bed-panel progress { width: 100%; accent-color: #b9c895; }
+.bed-panel label { color: #f1d6a8; font-size: 12px; }
+.bed-panel select { padding: 10px; border: 1px solid #f1d6a85c; background: #191e19; color: #ead8b9; font: inherit; }
+
+.bed-health { display: flex; align-items: center; gap: 10px; color: #ead8b9; font-size: 12px; }
+.bed-health .health-indicator { width: 28px; }
+.bed-health svg { width: 26px; height: 26px; }

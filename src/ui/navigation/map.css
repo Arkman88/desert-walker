@@ -1,0 +1,28 @@
+.inventory-panel.map-panel {
+  width: min(1040px, calc(100vw - 32px));
+  height: min(860px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.map-header { flex-shrink: 0; }
+.inventory-panel .map-header p { margin: 2px 0; }
+.map-view { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.map-surface { flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
+.map-layout { flex: 1; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) 240px; gap: 24px; }
+.paper-map { display: block; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); aspect-ratio: 1; border: 1px solid #a99772; overflow: hidden; cursor: grab; touch-action: none; user-select: none; }
+.paper-map[data-dragging="true"] { cursor: grabbing; }
+.map-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.inventory-panel .map-controls button { padding: 8px 12px; font-size: 12px; }
+.map-notes { min-width: 0; min-height: 0; height: 100%; overflow-y: auto; padding-right: 8px; }
+.inventory-panel .map-legend ul { list-style: none; padding: 0; margin: 8px 0 16px; }
+.inventory-panel .map-legend li { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0; border: 0; margin: 6px 0; font-size: 12px; }
+.map-legend svg { width: 28px; height: 28px; flex-shrink: 0; }
+@media (max-width: 650px) {
+  .map-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 3fr) minmax(0, 2fr); gap: 12px; }
+  .inventory-panel.map-panel { padding: 12px; gap: 8px; }
+  .map-notes { padding-right: 4px; }
+}

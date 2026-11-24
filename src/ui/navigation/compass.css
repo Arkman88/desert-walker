@@ -1,0 +1,74 @@
+.navigation-hud {
+  position: absolute;
+  right: 36px;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #fff3d9;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 5px #171c17;
+  pointer-events: none;
+}
+
+.navigation-readings { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.navigation-coordinates { font-size: 13px; white-space: nowrap; }
+.navigation-stats { display: flex; align-items: baseline; gap: 14px; white-space: nowrap; }
+.navigation-hud small { font-size: 11px; font-weight: 400; color: #ead8b9; }
+
+.compass {
+  width: 106px;
+  color: #ead8b9;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+}
+
+.compass-dial {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 5px;
+  border: 1px solid #f1d6a86b;
+  border-radius: 50%;
+  background: #252b22e6;
+  box-shadow: 0 3px 18px #141b1833;
+}
+
+.compass-rose { position: relative; width: 100%; height: 100%; }
+.compass-needle { display: block; width: 100%; height: 100%; }
+.compass-rose, .compass-cardinal { transition: transform 0.12s linear; }
+
+.compass-forward {
+  position: absolute;
+  z-index: 1;
+  top: -4px;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  background: #f1d6a8;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.compass-cardinal {
+  position: absolute;
+  color: #e9ddc6;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.compass-cardinal:first-of-type { color: #e39a7d; }
+
+@media (max-width: 650px) {
+  .navigation-hud { right: 18px; bottom: 62px; gap: 8px; font-size: 15px; }
+  .compass { width: 82px; }
+  .compass-cardinal { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compass-rose, .compass-cardinal { transition: none; }
+}

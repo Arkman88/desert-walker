@@ -1,0 +1,164 @@
+.inventory-panel {
+  width: min(900px, calc(100vw - 32px));
+}
+
+.inventory-panel h3 {
+  margin: 24px 0 12px;
+  color: #f1d6a8;
+  font-size: 14px;
+}
+
+.inventory-panel .item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 12px;
+  padding: 0;
+  margin: 12px 0 24px;
+  list-style: none;
+}
+
+.inventory-panel .equipment-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.inventory-panel .item-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #f1d6a83d;
+  border-radius: 6px;
+  background: #191e19;
+}
+
+.item-slot-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 86px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  background: #f1d6a80a;
+}
+
+.item-icon {
+  width: 64px;
+  height: 64px;
+  color: #e3c99d;
+}
+
+.item-icon--flask, .item-icon--waterPack { color: #a0cfdb; }
+.item-icon--backpack { color: #adbe92; }
+.item-icon--warmClothes { color: #d8ad96; }
+
+.item-slot-badge {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #30392b;
+  color: #f9e7c9;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-slot-name {
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.inventory-panel .item-slot-details,
+.inventory-panel .item-slot-metrics {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.inventory-panel .item-slot-metrics {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  color: #b4baa8;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-slot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.inventory-panel .item-slot-actions button {
+  flex: 1 1 auto;
+  padding: 8px 9px;
+  font-size: 11px;
+}
+
+.item-slot-actions .item-slot-reason {
+  flex-basis: 100%;
+  color: #ffd29a;
+}
+
+.item-slot[data-empty="true"] {
+  border-style: dashed;
+  background: #22271f;
+  color: #aeb6a4;
+}
+
+.item-slot[data-empty="true"] .item-icon { opacity: 0.35; }
+.item-slot-empty { color: #64705d; font-size: 32px; font-weight: 400; }
+
+@media (max-width: 650px) {
+  .inventory-panel .item-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .inventory-panel .equipment-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .inventory-panel .item-slot { padding: 10px; }
+  .equipment-grid .item-icon { width: 44px; height: 44px; }
+  .equipment-grid .item-slot-visual { min-height: 64px; }
+}
+
+@media (max-width: 420px) {
+  .inventory-panel .equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Compact personal inventory; crate and crafting windows keep their own sizing. */
+.inventory-panel.personal-inventory {
+  width: min(720px, calc(100vw - 24px));
+  max-height: min(680px, calc(100dvh - 32px));
+  padding: 16px;
+}
+
+.inventory-panel.personal-inventory .window-header { margin-bottom: 8px; }
+.inventory-panel.personal-inventory .window-header h2 { font-size: 22px; }
+.inventory-panel.personal-inventory p { margin: 4px 0; font-size: 12px; line-height: 1.5; }
+.personal-inventory h3 { margin: 16px 0 8px; font-size: 12px; }
+.inventory-panel.personal-inventory > button { margin-top: 8px; padding: 7px 12px; font-size: 12px; }
+.personal-inventory .item-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin: 8px 0 16px; }
+.personal-inventory .equipment-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.personal-inventory .item-slot { padding: 9px; }
+.personal-inventory .item-slot-visual { min-height: 52px; margin-bottom: 6px; }
+.personal-inventory .item-icon { width: 44px; height: 44px; }
+.personal-inventory .item-slot-name { font-size: 12px; line-height: 1.4; }
+.personal-inventory .item-slot-details,
+.personal-inventory .item-slot-metrics { margin-top: 4px; line-height: 1.4; }
+.personal-inventory .item-slot-metrics { gap: 8px; }
+.personal-inventory .item-slot-actions { gap: 4px; padding-top: 8px; }
+.personal-inventory .item-slot-actions button { padding: 6px; }
+
+@media (max-width: 650px) {
+  .inventory-panel.personal-inventory { padding: 12px; }
+  .personal-inventory .item-grid:not(.equipment-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 420px) {
+  .personal-inventory .equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

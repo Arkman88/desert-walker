@@ -1,0 +1,95 @@
+.vitals-hud {
+  position: absolute;
+  top: 50%;
+  left: 28px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  pointer-events: none;
+  color: #fff3d9;
+  text-shadow: 0 1px 5px #171c17;
+}
+
+.vital-reading { display: flex; align-items: center; gap: 10px; }
+.vital-reading strong { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.vital-reading[data-low="true"] strong { color: #ffba91; }
+.survival-icon { flex: 0 0 auto; width: 26px; height: 30px; filter: drop-shadow(0 1px 3px #171c1770); }
+/* The cross represents the worst existing condition, without a separate HP scale. */
+.health-indicator { pointer-events: auto; width: fit-content; }
+.health-indicator[data-severity="none"] { color: #80d69b; }
+.health-indicator[data-severity="mild"] { color: #f2d56d; }
+.health-indicator[data-severity="severe"] { color: #f0a45c; }
+.health-indicator[data-severity="critical"] { color: #f16f67; }
+.survival-icon--water { color: #72caff; }
+.survival-icon--food { color: #e9c889; }
+.survival-icon--stamina { color: #e2c18c; width: 20px; height: 24px; }
+
+.thermal-indicator {
+  position: relative;
+  width: 128px;
+  height: 12px;
+  border: 1px solid #f1d6a860;
+  border-radius: 3px;
+  background: linear-gradient(to right, #72caff, #59717b 35%, #77766a 50%, #a27b55 65%, #f0a45c);
+  pointer-events: auto;
+}
+.thermal-indicator::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #fff3d970; }
+.thermal-scale { position: absolute; inset: 0 3px; }
+.thermal-thumb { position: absolute; top: 50%; width: 3px; height: 18px; transform: translate(-50%, -50%); border-radius: 2px; background: #fff3d9; box-shadow: 0 0 3px #171c17; }
+
+.stamina-hud {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: min(260px, calc(100vw - 40px));
+  color: #f8e6c7;
+  pointer-events: none;
+  text-shadow: 0 1px 5px #171c17;
+}
+
+.stamina-hud strong { min-width: 28px; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; }
+.stamina-meter { flex: 1; min-width: 0; height: 9px; accent-color: #e2c18c; }
+.stamina-meter::-webkit-meter-bar { background: #252c25cc; border: 1px solid #f1d6a840; border-radius: 3px; }
+.stamina-meter::-webkit-meter-optimum-value { background: #e2c18c; }
+.stamina-meter::-moz-meter-bar { background: #e2c18c; }
+
+.survival-messages {
+  position: absolute;
+  left: 50%;
+  bottom: 106px;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 40px));
+  max-height: 28vh;
+  overflow-y: auto;
+  color: #ffe0a4;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  text-shadow: 0 1px 5px #171c17;
+}
+
+.survival-messages:empty { display: none; }
+.survival-messages p { margin: 6px 0; }
+.body-status { list-style: none; padding: 0; margin: 10px 0; font-size: 11px; }
+.body-status li { padding: 6px 0; }
+.body-status li strong, .body-status li span { display: block; }
+.body-status li[data-severity="severe"] { color: #ffd29a; }
+.body-status li[data-severity="critical"] { color: #ffb2a0; }
+
+@media (min-width: 651px) and (max-width: 850px) {
+  .survival-messages { bottom: 200px; }
+}
+
+@media (max-width: 650px) {
+  .vitals-hud { left: 16px; gap: 14px; }
+  .vital-reading { gap: 7px; }
+  .vital-reading strong { font-size: 15px; }
+  .survival-icon { width: 22px; height: 26px; }
+  .stamina-hud { bottom: 10px; width: min(220px, calc(100vw - 40px)); }
+  .survival-messages { bottom: 180px; font-size: 11px; max-height: 24vh; }
+}
