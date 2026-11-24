@@ -1,0 +1,13 @@
+.start-menu {
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.start-menu .intro {
+  margin: auto;
+}
+
+.start-menu button {
+  display: block;
+  margin: 12px auto;
+}

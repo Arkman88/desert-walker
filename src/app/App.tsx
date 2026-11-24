@@ -17,6 +17,8 @@ import type { ResourceStatus } from '../features/resources/resourceStore'
 import { cycleAt } from '../features/environment/dayCycle'
 import type { TimeOfDayMode } from '../features/environment/dayCycle'
 import { createSurvivalStore } from '../features/survival/survivalStore'
+import { completeNewGame } from '../features/survival/completeNewGame'
+import { requestNewGame } from '../features/survival/requestNewGame'
 import { SurvivalContext } from '../features/survival/survivalContext'
 import { SurvivalHud } from '../ui/SurvivalHud'
 import { LootContainerPanel } from '../ui/LootContainerPanel'
@@ -37,7 +39,9 @@ export function App() {
   const [active, setActive] = useState(false)
   const [placement, setPlacement] = useState<PlacementSelection | null>(null)
   const finishPlacement = useCallback(() => setPlacement(null), [])
-  const [survival] = useState(() => createSurvivalStore(undefined, { hideStartBuildings: true }))
+  const [survival, setSurvival] = useState(() => createSurvivalStore(undefined, { hideStartBuildings: true }))
+  const [restarting, setRestarting] = useState(false)
+  const [restartError, setRestartError] = useState('')
   const [panel, setPanel] = useState<GamePanel | null>(null)
   const [interaction, setInteraction] = useState<LootInteraction | null>(null)
   const sprintSpeed = useSyncExternalStore(survival.subscribe, survival.getSprintSpeed)
@@ -50,12 +54,60 @@ export function App() {
   const debugOptions = useSyncExternalStore(survival.subscribe, survival.getDebugOptions)
   const stormEnabled = useSyncExternalStore(survival.subscribe, survival.getStormEnabled)
   const saveBlocked = useSyncExternalStore(survival.subscribe, survival.getSaveBlocked)
+  const hasProgress = useSyncExternalStore(survival.subscribe, survival.getHasSavedGame)
   const setStormEnabled = survival.setStormEnabled
   const [timeOfDayMode, setTimeOfDayMode] = useState<TimeOfDayMode>('cycle')
   const [minutesOfDay, setMinutesOfDay] = useState(() => cycleAt(survival.getSnapshot().state.elapsedSeconds, timeOfDayMode).minutesOfDay)
   const [resources, setResources] = useState<ResourceStatus>({ count: 0, nearby: false, warning: '' })
   const [hud, setHud] = useState<PlayerTelemetry>({ x: 0, z: 0, yaw: 0, speed: 0, wind: 0, fps: 0 })
   const canvasRef = useRef<HTMLDivElement>(null)
+  const restartRequested = useRef(false)
+  const newGame = useCallback(() => {
+    const canvas = canvasRef.current?.querySelector('canvas')
+
+    survival.flush()
+    if (requestNewGame()) {
+      // Keep the canvas mounted and request pointer lock during the confirmation click.
+      if (canvas !== null && canvas !== undefined) {
+        void canvas.requestPointerLock()?.catch(() => setActive(false))
+      }
+      setPanel(null)
+      setPlacement(null)
+      setRestartError('')
+      restartRequested.current = true
+      setRestarting(true)
+      return true
+    }
+    return false
+  }, [survival])
+  const finishRestart = useCallback(() => {
+    if (restartRequested.current) {
+      // World notifies us after its old scene has finished all autosave cleanup.
+      const error = completeNewGame()
+
+      if (error === null) {
+        const nextSurvival = createSurvivalStore(undefined, { hideStartBuildings: true })
+
+        setSurvival(nextSurvival)
+        setInteraction(null)
+        setTerrainError('')
+        setTimeOfDayMode('cycle')
+        setMinutesOfDay(cycleAt(nextSurvival.getSnapshot().state.elapsedSeconds, 'cycle').minutesOfDay)
+        setResources({ count: 0, nearby: false, warning: '' })
+        setHud({ x: 0, z: 0, yaw: 0, speed: 0, wind: 0, fps: 0 })
+        restartRequested.current = false
+        setRestarting(false)
+      } else {
+        setRestartError(error)
+      }
+    }
+  }, [])
+  useEffect(() => {
+    if (restarting && saveBlocked) {
+      // Recovery has no mounted world to dispose.
+      finishRestart()
+    }
+  }, [restarting, saveBlocked, finishRestart])
   const openPanel = useCallback((next: GamePanel) => {
     survival.cancelSleep()
     survival.announce('')
@@ -128,13 +180,17 @@ export function App() {
       dpr={[1, 1.7]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
     >
-      <World onOpenStation={(eye, direction) => openPanel({ type: 'station', eye, direction })} onOpenTarik={(eye, direction) => openPanel({ type: 'tarik', eye, direction })} active={active} onHud={setHud} onTimeChange={setMinutesOfDay} onTerrainError={setTerrainError}
+      {!restarting && <World onDispose={finishRestart} onOpenStation={(eye, direction) => openPanel({ type: 'station', eye, direction })} onOpenTarik={(eye, direction) => openPanel({ type: 'tarik', eye, direction })} active={active} onHud={setHud} onTimeChange={setMinutesOfDay} onTerrainError={setTerrainError}
         stormEnabled={stormEnabled}
         timeOfDayMode={timeOfDayMode}
         resourceCollectionEnabled={GAME_FEATURES.resourceCollection} onResourceStatus={setResources}
-        onInteraction={setInteraction} onOpenContainer={openContainer} onOpenFire={openFire} onOpenBed={openBed} placement={placement} onPlacementDone={finishPlacement}/>
+        onInteraction={setInteraction} onOpenContainer={openContainer} onOpenFire={openFire} onOpenBed={openBed} placement={placement} onPlacementDone={finishPlacement}/>}
     </Canvas>}
-    {saveBlocked && <SaveRecovery/>}
+    {saveBlocked && !restarting && <SaveRecovery onNewGame={newGame}/>}
+    {restarting && <div className="overlay"><div className="intro" role="status">
+      <p>{restartError || 'Начинаем новую игру…'}</p>
+      {restartError && <button onClick={() => window.location.reload()}>Повторить</button>}
+    </div></div>}
     {terrainError && (
       <div role="alert" className="terrain-error">
         Не удалось загрузить рельеф. Перезагрузите страницу.
@@ -155,7 +211,7 @@ export function App() {
     {panel?.type === 'bed' && <BedPanel id={panel.id} onResume={start}/>}
     {panel?.type === 'fire' && <FireplacePanel id={panel.id} onResume={start}/>}
     {panel?.type === 'crafting' && <CraftingPanel onResume={start} onOpenInventory={() => openPanel({ type: 'inventory' })}/>}
-    {!saveBlocked && !active && !panel && <StartMenu sprintSpeed={sprintSpeed} onSprintSpeedChange={survival.setSprintSpeed} debugOptions={debugOptions} onDebugChange={survival.setDebugOption} onStart={start} resourceCollectionEnabled={GAME_FEATURES.resourceCollection}
+    {!saveBlocked && !restarting && !active && !panel && <StartMenu onNewGame={newGame} hasProgress={hasProgress} sprintSpeed={sprintSpeed} onSprintSpeedChange={survival.setSprintSpeed} debugOptions={debugOptions} onDebugChange={survival.setDebugOption} onStart={start} resourceCollectionEnabled={GAME_FEATURES.resourceCollection}
       stormEnabled={stormEnabled} onStormChange={setStormEnabled}
       timeOfDayMode={timeOfDayMode} onTimeOfDayChange={setTimeOfDayMode}/>}
   </main></SurvivalContext.Provider>

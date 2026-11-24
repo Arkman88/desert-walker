@@ -3,6 +3,7 @@ import { accepted, identityTransform, rejected } from '../../gameObjects/gameObj
 import type { GameObjectRegistry } from '../../gameObjects/gameObjectRegistry'
 import { RUIN_COURTYARD_HALF_SIZE_METERS, RUIN_PASSAGE_HALF_WIDTH_METERS, RUIN_GROUP_TYPE, RUIN_LAYOUT_KEYS, RUIN_LAYOUTS, RUIN_VARIANTS, ruinDefinitionId } from './ruinLayouts'
 import { footprintsOverlap, ruinFootprints } from './ruinPhysics'
+import { isProceduralRuinPart } from './isProceduralRuinPart'
 
 export function registerRuinDefinitions(registry: GameObjectRegistry): void {
   for (const variant of RUIN_VARIANTS) registry.registerObject({ id: ruinDefinitionId(variant), sockets: {},
@@ -17,6 +18,9 @@ export function registerRuinDefinitions(registry: GameObjectRegistry): void {
     ]) })
   registry.registerRules(RUIN_GROUP_TYPE, {
     validateAdd(group, part) {
+      const proceduralStateValid = 'proceduralRuinVersion' in part.state || 'proceduralRuinSeed' in part.state
+        ? isProceduralRuinPart(part) : true
+
       if (Math.abs(part.transform.rotation[0]) > 1e-6 || Math.abs(part.transform.rotation[2]) > 1e-6) return rejected('ruin-rotation', 'Постройки руин поворачиваются только вокруг вертикали.')
       if (part.transform.scale.some(value => value !== 1)) return rejected('ruin-scale', 'Руины используют исходный масштаб в метрах.')
       const slot = registry.group(group.definitionId)?.parts.find(slot => part.id === `${group.id}:${slot.key}`)
@@ -40,7 +44,7 @@ export function registerRuinDefinitions(registry: GameObjectRegistry): void {
         : Object.keys(components).length === 2 && components.render?.assetId === defaults?.render?.assetId
           && components.collider?.profile === defaults?.collider?.profile
           && Object.keys(components.render ?? {}).length === 1 && Object.keys(components.collider ?? {}).length === 1
-      return matches ? accepted : rejected('ruin-components', 'Компоненты руин не соответствуют определению.')
+      return matches && proceduralStateValid ? accepted : rejected('ruin-components', 'Компоненты или seed руин не соответствуют определению.')
     },
     validateRemove: () => accepted,
     validateConnection: () => rejected('ruin-link', 'Соседние руины входят в деревню без физических соединений.'),

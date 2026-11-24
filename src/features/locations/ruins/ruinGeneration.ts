@@ -104,6 +104,14 @@ export function generateRuinVillage(id: string, layout: RuinLayout, seed: number
   group.members.push(...anchors)
   group.state = { ...group.state, seed, layout }
   const assembled = withRuinCrates(group, gameObjectRegistry)
+  if (id.startsWith('ruins:v1:demo:') === false) {
+    assembled.members.forEach((part, index) => {
+      if (part.definitionId.startsWith('village_ruin:')
+        && part.definitionId !== RUIN_CRATE_DEFINITION && part.definitionId !== 'village_ruin:loot_anchor') {
+        part.state = { ...part.state, proceduralRuinVersion: 1, proceduralRuinSeed: seed + index * 37 }
+      }
+    })
+  }
   return validateGroup(gameObjectRegistry, assembled).ok ? assembled : null
 }
 

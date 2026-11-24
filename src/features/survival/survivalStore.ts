@@ -68,12 +68,16 @@ export function createSurvivalStore(providedStorage?: StorageAccess, options: { 
   let state = initialSurvivalState()
   let warning = ''
   let saveBlocked = false
+  let hasSavedGame = false
   let incompatibleRaw: string | null = null
   try {
     storage = providedStorage ?? localStorage
     const raw = storage.getItem(SURVIVAL_SAVE_KEY)
     const loaded = parseSurvivalSave(raw)
-    if (loaded) state = loaded
+    if (loaded) {
+      state = loaded
+      hasSavedGame = true
+    }
     else if (raw !== null) {
       saveBlocked = true
       incompatibleRaw = raw
@@ -131,18 +135,30 @@ export function createSurvivalStore(providedStorage?: StorageAccess, options: { 
     listeners.forEach(listener => listener())
   }
   const flush = () => {
-    if (!dirty || saveBlocked) return
-    const previous = warning
-    try {
-      const target = storage ?? providedStorage ?? localStorage
-      const raw = serializeSurvivalSave(state)
-      if (!parseSurvivalSave(raw)) throw new Error('Refusing to write an invalid world snapshot')
-      target.setItem(SURVIVAL_SAVE_KEY, raw)
-      storage = target
-      warning = ''
-      dirty = false
-    } catch { warning = 'Не удалось сохранить припасы. Прогресс остаётся в этой сессии.' }
-    if (previous !== warning) publish()
+    if (dirty && saveBlocked === false) {
+      const previous = warning
+      const previouslySaved = hasSavedGame
+
+      try {
+        const target = storage ?? providedStorage ?? localStorage
+        const raw = serializeSurvivalSave(state)
+
+        if (parseSurvivalSave(raw) !== null) {
+          target.setItem(SURVIVAL_SAVE_KEY, raw)
+          hasSavedGame = true
+          storage = target
+          warning = ''
+          dirty = false
+        } else {
+          throw new Error('Refusing to write an invalid world snapshot')
+        }
+      } catch {
+        warning = 'Не удалось сохранить припасы. Прогресс остаётся в этой сессии.'
+      }
+      if (previous !== warning || previouslySaved !== hasSavedGame) {
+        publish()
+      }
+    }
   }
   const apply = (next: SurvivalState, persist = false) => {
     if (next === state || saveBlocked) return
@@ -377,6 +393,7 @@ export function createSurvivalStore(providedStorage?: StorageAccess, options: { 
       return group
     },
     getSaveBlocked: () => saveBlocked,
+    getHasSavedGame: () => hasSavedGame,
     exportIncompatibleSave: () => incompatibleRaw,
     startNewGame: () => {
       if (!saveBlocked) return false

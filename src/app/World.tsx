@@ -2,7 +2,7 @@ import { Tarik } from '../features/npc/Tarik'
 import { type GroundPosition } from '../features/resources/lootModel'
 import { PumpStation } from '../features/machines/pumpStation/PumpStation'
 import { RuinVillages } from '../features/locations/ruins/RuinVillages'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { BoreholeSites } from '../features/adventure/BoreholeSites'
 import { ExplorationSites } from '../features/exploration/ExplorationSites'
@@ -35,6 +35,7 @@ import { PlacementPreview } from '../features/placement/PlacementPreview'
 import type { PlacementSelection } from '../features/placement/placeableItems'
 
 type WorldProps = {
+  onDispose: () => void
   onOpenStation: (eye: GroundPosition, direction: GroundPosition) => void
   onOpenTarik: (eye: GroundPosition, direction: GroundPosition) => void
   active: boolean
@@ -53,13 +54,19 @@ type WorldProps = {
   timeOfDayMode: TimeOfDayMode
 }
 
-export function World({ onOpenStation, onOpenTarik, active, onHud, onTimeChange, onTerrainError, onResourceStatus, resourceCollectionEnabled, stormEnabled, timeOfDayMode, onInteraction, onOpenContainer, onOpenFire, onOpenBed, placement, onPlacementDone }: WorldProps) {
+export function World({ onDispose, onOpenStation, onOpenTarik, active, onHud, onTimeChange, onTerrainError, onResourceStatus, resourceCollectionEnabled, stormEnabled, timeOfDayMode, onInteraction, onOpenContainer, onOpenFire, onOpenBed, placement, onPlacementDone }: WorldProps) {
   const [initialPose] = useState(loadPlayerSave)
   const [chunk, setChunk] = useState<[number, number]>(() => [
     Math.floor(((initialPose?.x ?? 0) + CHUNK_SIZE / 2) / CHUNK_SIZE),
     Math.floor(((initialPose?.z ?? 0) + CHUNK_SIZE / 2) / CHUNK_SIZE),
   ])
   const onChunk = useCallback((c: [number, number]) => setChunk(c), [])
+
+  useEffect(() => () => {
+    // Run after all children finish their synchronous unmount autosaves.
+    queueMicrotask(onDispose)
+  }, [onDispose])
+
   return <StormIntensityContext value={stormEnabled ? 1 : 0}>
     <MapSurvey active={active}/>
     <Survival active={active} placementActive={placement !== null} timeOfDayMode={timeOfDayMode}/>

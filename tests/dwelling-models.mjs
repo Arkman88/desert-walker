@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { moduleURL } from './module-loader.mjs'
 
-const { dwellingHouseVariant, dwellingRuin, dwellingRuinPlacement } = await import(moduleURL('../src/features/locations/dwellingRuin.ts'))
+const { dwellingHouseVariant, dwellingRuin } = await import(moduleURL('../src/features/locations/dwellingRuin.ts'))
 const { dwellingHouse } = await import(moduleURL('../src/features/locations/dwellingHouse.ts'))
 const { locationParts } = await import(moduleURL('../src/features/locations/locationLayout.ts'))
 const { expeditionRegion } = await import(moduleURL('../src/features/exploration/expeditionGeneration.ts'))
@@ -26,7 +26,7 @@ for (let x = -300; x <= 300; x += 30) for (let z = -300; z <= 300; z += 30) {
 assert.deepEqual([...variants].sort(), ['annex', 'compact', 'longhouse', 'village_ruin:collapsed_house', 'village_ruin:corner_ruin'])
 for (const house of expeditionRegion(0, 0).houses) {
   if (dwellingHouseVariant(house.x, house.z)) continue
-  const { placement } = dwellingRuinPlacement(house)
-  assert.deepEqual(placement.position, [house.x, heightAt(house.x, house.z) - house.burialDepth, house.z])
+  const group = dwellingRuin(house.x, house.z, heightAt(house.x, house.z) - house.burialDepth)
+  assert.deepEqual(group.transform.position, [house.x, heightAt(house.x, house.z) - house.burialDepth, house.z])
 }
-console.log('PASS: all five dwelling variants are deterministic and use model collision geometry; ruin placement retains terrain burial.')
+console.log('PASS: V4 houses and procedural ruins are deterministic and share model collision geometry; ruin placement retains terrain burial.')

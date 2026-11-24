@@ -6,6 +6,9 @@ import { worldPoint } from '../../gameObjects/gameObjectTransform'
 import type { Obstacle } from '../../player/naturalObstacles'
 import { RUIN_BOUNDS } from './ruinBounds'
 import type { RuinVariant } from './ruinLayouts'
+import { isProceduralRuinPart } from './isProceduralRuinPart'
+import { proceduralRuinBuilding } from './proceduralRuinBuilding'
+import { proceduralHouseObstacles } from '../proceduralHouses/housePhysics'
 
 export function ruinVariantForPart(part: GameObject): RuinVariant | null {
   if (!part.definitionId.startsWith('village_ruin:')) return null
@@ -47,6 +50,9 @@ export function ruinGroupObstacles(group: GameObjectGroup): Obstacle[] {
   return group.members.flatMap(part => {
     if (part.definitionId === RUIN_CRATE_DEFINITION) return part.components.collider ? [ruinCrateBounds(group, part)] : []
     const variant = ruinVariantForPart(part)
+    if (variant && part.components.collider && isProceduralRuinPart(part)) {
+      return proceduralHouseObstacles(proceduralRuinBuilding({ group, part }))
+    }
     if (!variant || !part.components.collider) return []
     const boxes = RUIN_BOUNDS[variant].colliders.map(([name, ...bounds]) =>
       transformedBox(group.transform, part, bounds, `${part.id}:${name}`))

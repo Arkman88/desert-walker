@@ -8,7 +8,7 @@ import { TEST_HUT_ASSET_PATH } from './testHut/testHutLayout'
 import { dwellingHouse } from './dwellingHouse'
 import type { DwellingHouseVariant } from './dwellingHouse'
 
-const kitPool = createResourcePool(async () => {
+export const dwellingHouseKitPool = createResourcePool(async () => {
   const { scene } = await new GLTFLoader().loadAsync(new URL(TEST_HUT_ASSET_PATH, document.baseURI).href)
   try {
     prepareAuthoredHut(scene)
@@ -21,7 +21,7 @@ const kitPool = createResourcePool(async () => {
 
 function housePool(variant: DwellingHouseVariant): ModelAssetPool {
   const pool = createResourcePool(async () => {
-    const lease = kitPool.acquire()
+    const lease = dwellingHouseKitPool.acquire()
     try {
       const { kit } = await lease.promise
       const visual = createHouseVisual(dwellingHouse(variant, 0, 0, 0), kit)

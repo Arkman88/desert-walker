@@ -1,5 +1,9 @@
-import type { SurvivalDebugOptions } from '../features/survival/survivalModel'
-import type { TimeOfDayMode } from '../features/environment/dayCycle'
+import { useState } from 'react'
+
+import { type SurvivalDebugOptions } from '../features/survival/survivalModel'
+import { type TimeOfDayMode } from '../features/environment/dayCycle'
+
+import './startMenu.css'
 
 const TIME_OF_DAY_OPTIONS: { value: TimeOfDayMode; label: string }[] = [
   { value: 'cycle', label: 'Обычный цикл' },
@@ -14,6 +18,8 @@ type StartMenuProps = {
   debugOptions: Readonly<SurvivalDebugOptions>
   onDebugChange: (key: keyof SurvivalDebugOptions, enabled: boolean) => void
   onStart: () => void
+  onNewGame: () => boolean
+  hasProgress: boolean
   resourceCollectionEnabled: boolean
   stormEnabled: boolean
   onStormChange: (enabled: boolean) => void
@@ -21,14 +27,33 @@ type StartMenuProps = {
   onTimeOfDayChange: (mode: TimeOfDayMode) => void
 }
 
-export function StartMenu({ sprintSpeed, onSprintSpeedChange, debugOptions, onDebugChange, onStart, resourceCollectionEnabled, stormEnabled, onStormChange, timeOfDayMode, onTimeOfDayChange }: StartMenuProps) {
+export const StartMenu = ({ sprintSpeed, onSprintSpeedChange, debugOptions, onDebugChange, onStart, onNewGame, hasProgress, resourceCollectionEnabled, stormEnabled, onStormChange, timeOfDayMode, onTimeOfDayChange }: StartMenuProps) => {
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const restart = () => {
+    if (onNewGame()) {
+      setConfirmReset(false)
+    } else {
+      setSaveError('Не удалось начать новую игру. Разрешите доступ к хранилищу браузера и попробуйте снова. Текущий прогресс не удалён.')
+    }
+  }
+
   return (
-    <div className="overlay">
+    <div className="overlay start-menu">
       <div className="intro">
         <div className="eyebrow">ЭКСПЕДИЦИЯ № 001</div>
         <h1>Бескрайние<br/><i>пески</i></h1>
         <p>Исследуй пустыню, береги воду и силы. От жары спасает тень, от ночного холода — укрытие. Стартовый лагерь находится за припасами, около X=0, Z=−18.</p>
-        <button onClick={onStart}>НАЧАТЬ ПУТЕШЕСТВИЕ <span>↗</span></button>
+        {confirmReset ? <div role="group" aria-label="Подтверждение новой игры">
+          <p>Начать заново? Текущий прогресс будет заменён. Резервная копия последней игры останется в этом браузере.</p>
+          <button onClick={restart}>НАЧАТЬ ЗАНОВО</button>
+          <button onClick={() => setConfirmReset(false)}>ОТМЕНА</button>
+        </div> : <>
+          <button onClick={onStart}>{hasProgress ? 'ПРОДОЛЖИТЬ ИГРУ' : 'НАЧАТЬ ПУТЕШЕСТВИЕ'} <span>↗</span></button>
+          <button onClick={() => setConfirmReset(true)}>НОВАЯ ИГРА</button>
+        </>}
+        <p>Прогресс сохраняется автоматически в этом браузере. Очистка данных сайта удалит сохранения.</p>
+        {saveError && <p role="alert">{saveError}</p>}
         <fieldset className="debug-panel">
           <legend>Дебаг</legend>
           <label>Скорость бега: {sprintSpeed} м/с
